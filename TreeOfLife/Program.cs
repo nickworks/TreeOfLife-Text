@@ -1,4 +1,7 @@
-﻿using System;
+﻿// This goal of this project is to create a Text-Base Adventure game WITHOUT object-oriented programming.
+// Why no OOP? Because my first-semester programming students are tasked with creating a text game without OOP.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -199,7 +202,7 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("Monastery", "Home", "Branch Path", "");                    
+                    DrawCompass("Monastery", "Home", "Branch Path", "");
                     PrintNarrative("The village center is positioned directly over a fork in the branch. Large platforms are built onto the sides of the branches like scaffolding. The village center and surrounding buildings are constructed out of wooden beams and rope. A few people meander about, but today there are no merchants peddling food or crafts.");
                     PrintNarrative("\n\n Near the far perimeter, "); PrintKeyword("JOEY"); PrintNarrative(" lays in a hammock.");
                     break;
@@ -207,6 +210,10 @@ namespace TreeOfLife
                 case "talk to joey":
                 case "talk joey":
                     PrintDialog("Hi Nola! I'm sorry to see you go, but I know you'll find us a great new place to live!");
+                    break;
+                case "n":
+                case "north":
+                    ChangeLocation(Location.EldersMonastery, "");
                     break;
                 case "e":
                 case "east":
@@ -216,6 +223,10 @@ namespace TreeOfLife
                 case "south":
                     ChangeLocation(Location.TheBranch, "");
                     break;
+                case "w":
+                case "west":
+
+                    break;
             }
         }
         static void BanyanCity(string input)
@@ -223,6 +234,11 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+                    DrawCompass("Trunk Wall", "", "", "The Prison");
+                    break;
+                case "n":
+                case "north":
+                    ChangeLocation(Location.TrunkWall, "");
                     break;
             }
         }
@@ -231,6 +247,7 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+                    DrawCompass("", "", "", "The Branch");
                     break;
                 case "w":
                 case "west":
@@ -243,6 +260,11 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+                    DrawCompass("", "", "Acacia Village", "");
+                    break;
+                case "s":
+                case "south":
+                    ChangeLocation(Location.AcaciaVillage, "");
                     break;
             }
         }
@@ -251,6 +273,11 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+                    DrawCompass("", "Moss Lake", "", "");
+                    break;
+                case "e":
+                case "east":
+                    ChangeLocation(Location.MossLake, "");
                     break;
             }
         }
@@ -286,7 +313,7 @@ namespace TreeOfLife
                     DrawCompass("", "The Branch Trail", "The Trunk Wall", "Dilapidated Stairs");
                     
                     PrintNarrative("You stand on the Eastern edge of a large green pond which the villagers call Moss Lake. Here, the cracked bark of the branch gently slopes down into the water, but along the Northern banks, large clumps of moss jut out from the water like large, thick bushes.");
-                    PrintNarrative("\n\n The far edge of the pond meets the vertical trunk of the tree.Where the branch joins the great trunk, the limbs form a wide crevasse. Hidden between great cracks in the bark, a few rivulets trickle down the trunk and feed a shallow pool about 30 feet above Moss Lake. Out from this pool, a waterfall spills into the crevasse, creating the Lake.");
+                    PrintNarrative("\n\n The far edge of the pond meets the vertical trunk of the tree. Where the branch joins the great trunk, the limbs form a wide crevasse. Hidden between great cracks in the bark, a few rivulets trickle down the trunk and feed a shallow pool about 30 feet above Moss Lake. Out from this pool, a waterfall spills into the crevasse, creating the Lake.");
                     PrintNarrative("\n\n Throughout your youth, this had been a particularly relaxing place to pass the time. You recall several trips to Moss Lake and the hours spent swimming and fishing.");
                     PrintNarrative("\n\n Now, the Lake looks overgrown with moss and algae, and you struggle to see any fish in the green waters.");
 
@@ -306,7 +333,7 @@ namespace TreeOfLife
                     break;
                 case "w":
                 case "west":
-                    location = Location.ExplorersLanding;
+                    ChangeLocation(Location.ExplorersLanding, "");
                     break;
                 case "e":
                 case "east":
@@ -379,6 +406,15 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+                    DrawCompass("Moss Lake", "", "Banyan City", "");
+                    break;
+                case "n":
+                case "north":
+                    ChangeLocation(Location.MossLake, "");
+                    break;
+                case "s":
+                case "south":
+                    ChangeLocation(Location.BanyanCity, "");
                     break;
             }
         }
