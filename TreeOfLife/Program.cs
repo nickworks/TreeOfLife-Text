@@ -22,7 +22,9 @@ namespace TreeOfLife
 
         const int COLUMN_L = 3;
         const int COLUMN_R = 100;
-        const int SCREEN_W = 150;
+        static int SCREEN_W = 150;
+        static int SCREEN_H = 50;
+
 
         enum Location
         {
@@ -86,11 +88,14 @@ namespace TreeOfLife
         #region Core
         static void Main(string[] args)
         {
-
             ResetColors();
+            
             Console.Clear();
             Console.InputEncoding = Console.OutputEncoding = Encoding.Unicode;
-            Console.SetWindowSize(SCREEN_W, 40);
+
+            if (SCREEN_W > Console.LargestWindowWidth) SCREEN_W = Console.LargestWindowWidth;
+
+            Console.SetWindowSize(SCREEN_W, SCREEN_H);
             Console.CursorVisible = false;
 
             CutsceneIntro();
@@ -159,13 +164,19 @@ namespace TreeOfLife
                 case "?":
                 case "help":
                 case "commands":
-                case "ls":
+                    PrintLocation("  == How to Play ==");
+                    PrintNarrative("\n  Type in commands and press enter.");
+                    PrintLocation("\n\n  == Common Commands ==");
+                    PrintKeyword("\n LOOK\t"); PrintNarrative("Describes your current location.");
+                    PrintKeyword("\n N\t"); PrintNarrative("Travel North");
+                    PrintKeyword("\n E\t"); PrintNarrative("Travel East");
+                    PrintKeyword("\n S\t"); PrintNarrative("Travel South");
+                    PrintKeyword("\n W\t"); PrintNarrative("Travel West");
 
-                    PrintKeyword("LOOK\t"); PrintNarrative("Describes your current location.");
-                    PrintKeyword("\nN\t"); PrintNarrative("Travel North");
-                    PrintKeyword("\nE\t"); PrintNarrative("Travel East");
-                    PrintKeyword("\nS\t"); PrintNarrative("Travel South");
-                    PrintKeyword("\nW\t"); PrintNarrative("Travel West");
+                    PrintKeyword("\n\n MAP\t"); PrintNarrative("View world map");
+                    PrintKeyword("\n INV\t"); PrintNarrative("View inventory");
+                    
+                    PrintKeyword("\n\n EXIT\t"); PrintNarrative("Quit the game");
 
                     return true;
                 case "quit":
@@ -190,7 +201,11 @@ namespace TreeOfLife
                 case "inv":
                 case "backpack":
                 case "pack":
-                    DrawInventory(5, 0);// Console.CursorTop);
+                case "i":
+                    DrawInventory();
+                    return true;
+                case "clear":
+                    Console.Clear();
                     return true;
             }
             return false;
@@ -202,7 +217,6 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("Monastery", "Home", "Branch Path", "");
                     PrintNarrative("The village center is positioned directly over a fork in the branch. Large platforms are built onto the sides of the branches like scaffolding. The village center and surrounding buildings are constructed out of wooden beams and rope. A few people meander about, but today there are no merchants peddling food or crafts.");
                     PrintNarrative("\n\n Near the far perimeter, "); PrintKeyword("JOEY"); PrintNarrative(" lays in a hammock.");
                     break;
@@ -234,11 +248,23 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("Trunk Wall", "", "", "The Prison");
+                    
                     break;
                 case "n":
                 case "north":
                     ChangeLocation(Location.TrunkWall, "");
+                    break;
+                case "w":
+                case "west":
+                    ChangeLocation(Location.LilliansKeep, "");
+                    break;
+                case "e":
+                case "east":
+                    ChangeLocation(Location.Marketplace, "");
+                    break;
+                case "s":
+                case "south":
+                    ChangeLocation(Location.RootFissures, "");
                     break;
             }
         }
@@ -247,7 +273,6 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("", "", "", "The Branch");
                     break;
                 case "w":
                 case "west":
@@ -260,7 +285,6 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("", "", "Acacia Village", "");
                     break;
                 case "s":
                 case "south":
@@ -273,7 +297,6 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("", "Moss Lake", "", "");
                     break;
                 case "e":
                 case "east":
@@ -287,6 +310,14 @@ namespace TreeOfLife
             {
                 case "look":
                     break;
+                case "e":
+                case "east":
+                    ChangeLocation(Location.BanyanCity, "");
+                    break;
+                case "s":
+                case "south":
+                    ChangeLocation(Location.Prison, "");
+                    break;
             }
         }
         static void Marketplace(string input)
@@ -294,6 +325,10 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+                    break;
+                case "w":
+                case "west":
+                    ChangeLocation(Location.BanyanCity, "");
                     break;
             }
         }
@@ -303,6 +338,10 @@ namespace TreeOfLife
             {
                 case "look":
                     break;
+                case "s":
+                case "south":
+                    ChangeLocation(Location.ProspectorsCanyon, "");
+                    break;
             }
         }
         static void MossLake(string input)
@@ -310,7 +349,7 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("", "The Branch Trail", "The Trunk Wall", "Dilapidated Stairs");
+                    
                     
                     PrintNarrative("You stand on the Eastern edge of a large green pond which the villagers call Moss Lake. Here, the cracked bark of the branch gently slopes down into the water, but along the Northern banks, large clumps of moss jut out from the water like large, thick bushes.");
                     PrintNarrative("\n\n The far edge of the pond meets the vertical trunk of the tree. Where the branch joins the great trunk, the limbs form a wide crevasse. Hidden between great cracks in the bark, a few rivulets trickle down the trunk and feed a shallow pool about 30 feet above Moss Lake. Out from this pool, a waterfall spills into the crevasse, creating the Lake.");
@@ -346,7 +385,6 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("", "", "", "Village");
                     PrintNarrative("Nola's shack gently sways back and forth. ");
                     PrintNarrative("");
                     break;
@@ -360,6 +398,10 @@ namespace TreeOfLife
         {
             switch (input)
             {
+                case "n":
+                case "north":
+                    ChangeLocation(Location.LilliansKeep, "");
+                    break;
                 case "look":
                     break;
             }
@@ -370,6 +412,14 @@ namespace TreeOfLife
             {
                 case "look":
                     break;
+                case "n":
+                case "north":
+                    ChangeLocation(Location.MitesCave, "");
+                    break;
+                case "w":
+                case "west":
+                    ChangeLocation(Location.RootFissures, "");
+                    break;
             }
         }
         static void RootFissures(string input)
@@ -378,6 +428,14 @@ namespace TreeOfLife
             {
                 case "look":
                     break;
+                case "n":
+                case "north":
+                    ChangeLocation(Location.BanyanCity, "");
+                    break;
+                case "e":
+                case "east":
+                    ChangeLocation(Location.ProspectorsCanyon, "");
+                    break;
             }
         }
         static void TheBranch(string input)
@@ -385,7 +443,7 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("Acacia Village", "Edgar's Nest", "", "Moss Lake");
+                    
                     break;
                 case "w":
                 case "west":
@@ -406,7 +464,7 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    DrawCompass("Moss Lake", "", "Banyan City", "");
+                    
                     break;
                 case "n":
                 case "north":
@@ -433,6 +491,8 @@ namespace TreeOfLife
             int preX = Console.CursorLeft;
             int preY = Console.CursorTop;
 
+            if(showPosition) DrawCompass();
+
             //if (showPosition) Clear();
             Console.SetCursorPosition(x, y);
 
@@ -452,14 +512,14 @@ namespace TreeOfLife
                 @"    ###########^----\ \_-  `-' .--.####~~#######",
                 @"   ###~~###~          --.      /    ~######~",
                 @"    ~####             /      /",
-                @"                     / @     |",
+                @"                     /       |",
                 @"                    |     ,  \",
-                @"                  ,'   ._/ \  `.",
-                @"               _-` __   \_   `-. `,",
-                @"              /_--'  `-_  \     `. ',",
-                @"             .`         '\_\.-'   \ \",
-                @"              `-_._      /`        |@",
-                @"                / /\    |`         |/",
+                @"                  ,'  _.._   |\`.",
+                @"               _-` _,`   /  /`-.\`,",
+                @"              /_--'   _,@- |    `. ',",
+                @"             .`    _ /  ,-. \      \ \",
+                @"              `-_.  \_ /   `.\.     |@",
+                @"                /\_   `-..          ./",
                 @"             _-'_/  `-,_\        _.'",
                 @"            /_-'  _.-/__/`-.__.-'\_",
                 @"                 /       `\    '-. \_",
@@ -499,21 +559,24 @@ namespace TreeOfLife
                 case Location.EdgarsNest:           Console.SetCursorPosition(35 + x, 12 + y); break;
                 case Location.EldersMonastery:      Console.SetCursorPosition(39 + x, 09 + y); break;
                 case Location.ExplorersLanding:     Console.SetCursorPosition(30 + x, 08 + y); break;
-                case Location.LilliansKeep:         Console.SetCursorPosition(24 + x, 17 + y); break;
+                case Location.LilliansKeep:         Console.SetCursorPosition(21 + x, 17 + y); break;
                 case Location.Marketplace:          Console.SetCursorPosition(26 + x, 17 + y); break;
                 case Location.MitesCave:            Console.SetCursorPosition(30 + x, 20 + y); break;
                 case Location.MossLake:             Console.SetCursorPosition(27 + x, 12 + y); break;
                 case Location.NolasHome:            Console.SetCursorPosition(42 + x, 10 + y); break;
-                case Location.Prison:               Console.SetCursorPosition(23 + x, 18 + y); break;
+                case Location.Prison:               Console.SetCursorPosition(18 + x, 18 + y); break;
                 case Location.ProspectorsCanyon:    Console.SetCursorPosition(28 + x, 21 + y); break;
-                case Location.RootFissures:         Console.SetCursorPosition(25 + x, 20 + y); break;
+                case Location.RootFissures:         Console.SetCursorPosition(20 + x, 20 + y); break;
                 case Location.TheBranch:            Console.SetCursorPosition(31 + x, 11 + y); break;
                 case Location.TrunkWall:            Console.SetCursorPosition(25 + x, 14 + y); break;
                 case Location.WeaversDen:           Console.SetCursorPosition(27 + x, 10 + y); break;
             }
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("(X)");
             Console.SetCursorPosition(0, y + tree.Length);
+
+            ResetColors();
         }
         static void DrawTitle(int x, int y)
         {
@@ -571,6 +634,7 @@ namespace TreeOfLife
         }
         static void DrawTitle2(int x, int y, ConsoleColor color)
         {
+
             int ty = y;
             string[] pieces2 = {
                 @" _______                     __   _      _  __",
@@ -629,9 +693,12 @@ namespace TreeOfLife
             if (map.ContainsKey(c)) Console.ForegroundColor = map[c];
             else if(c != '\0') ColorMapLookup('\0', map);
         }
-        static void DrawInventory(int x, int y)
+        static void DrawInventory()
         {
-            Console.Clear();
+            int x = Console.CursorLeft;
+            int y = Console.CursorTop;
+
+            //Console.Clear();
             string[] lines = {
                 @"  .-.---                                 -----.",
                 @" /   \                                         \",
@@ -710,6 +777,26 @@ namespace TreeOfLife
             Console.ReadKey(false);
             Clear();
         }
+        static void DrawCompass() {
+            switch (location) {
+                case Location.AcaciaVillage:    DrawCompass("Monastery", "Home", "Branch Path", ""); break;
+                case Location.NolasHome:        DrawCompass("", "", "", "Village"); break;
+                case Location.EldersMonastery:  DrawCompass("", "", "Acacia Village", ""); break;
+                case Location.TheBranch:        DrawCompass("Acacia Village", "Edgar's Nest", "", "Moss Lake"); break;
+                case Location.EdgarsNest:       DrawCompass("", "", "", "The Branch"); break;
+                case Location.MossLake:         DrawCompass("", "The Branch Trail", "The Trunk Wall", "Dilapidated Stairs"); break;
+                case Location.ExplorersLanding: DrawCompass("", "Moss Lake", "", ""); break;
+                case Location.WeaversDen:       DrawCompass("", "", "", ""); break;
+                case Location.TrunkWall:        DrawCompass("Moss Lake", "", "Banyan City", ""); break;
+                case Location.BanyanCity:       DrawCompass("Trunk Wall", "Marketplace", "Root Fissures", "Lillian's Keep");break;
+                case Location.LilliansKeep:     DrawCompass("", "Banyan City", "Prison", ""); break;
+                case Location.Marketplace:      DrawCompass("", "", "", "Banyan City"); break;
+                case Location.RootFissures:     DrawCompass("Banyan City", "Prospectors' Canyon", "", ""); break;
+                case Location.ProspectorsCanyon:DrawCompass("Mite's Cave", "", "", "Root Fissures"); break;
+                case Location.MitesCave:        DrawCompass("", "", "Prospector's Canyon", ""); break;
+                case Location.Prison:           DrawCompass("Lillian's Keep", "", "", ""); break;
+            }
+        }
         static void DrawCompass(string north, string east, string south, string west)
         {
             //Console.Clear();
@@ -739,7 +826,7 @@ namespace TreeOfLife
             PrintColor("E ", (east.Length > 0) ? ConsoleColor.Magenta : ConsoleColor.DarkGray);
             if (east.Length > 0)
             {
-                 PrintLocation(east);
+                    PrintLocation(east);
             }
             Console.SetCursorPosition(x, y + 1);
             PrintColor("S", (south.Length > 0) ? ConsoleColor.Magenta : ConsoleColor.DarkGray);
@@ -841,7 +928,7 @@ namespace TreeOfLife
             foreach(char c in text)
             {
                 Console.Write(c);
-                int sleepAmount = rand.Next(15, 40);
+                int sleepAmount = rand.Next(0, 10);
                 while (Console.KeyAvailable)
                 {
                     if(Console.ReadKey(true).Key == ConsoleKey.Enter)
