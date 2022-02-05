@@ -20,6 +20,8 @@ namespace TreeOfLife
         const ConsoleColor COLOR_PROMPT = ConsoleColor.DarkGray;
         const ConsoleColor COLOR_LOCATION = ConsoleColor.Yellow;
 
+        const bool DEV = true;
+
         const int COLUMN_L = 3;
         const int COLUMN_R = 100;
         static int SCREEN_W = 150;
@@ -63,28 +65,33 @@ namespace TreeOfLife
             "Mite's Cave",
             "The Prison"
         };
+        enum Items {
+            FishingPole,
+            TrunkMap,
+            Wingsuit,
+            Feather,
+            RottenEgg,
+            Aphids,
+            KelpMoss,
+            RustyKnife,
+            SilkSack,
+            AntsPants,
+            FlameGel,
+            CorrosiveAcid,
+            PurpleLichen,
+            MarketplaceContract,
+            Lantern
+        }
 
         static Random rand = new Random(); // a random number generator
+        
         static Location location = Location.AcaciaVillage; // the player's location
+        static List<Location> locationsDiscovered = new List<Location>();
+        static List<Items> inventory = new List<Items>();
+        
         static bool useTypeWriter = true;
         static bool shouldQuit = false;
-        #region State: Inventory
-        static bool hasFishingPole = false;
-        static bool hasTrunkMap = false;
-        static bool hasWingsuit = false;
-        static bool hasFeather = false;
-        static bool hasRottenEgg = true;
-        static bool hasAphids = false;
-        static bool hasKelpMoss = false;
-        static bool hasRustyKnife = false;
-        static bool hasSilkSack = false;
-        static bool hasAntsPants = false;
-        static bool hasFlameGel = true;
-        static bool hasCorrosiveAcid = false;
-        static bool hasPurpleLichen = false;
-        static bool hasMarketplaceContract = true;
-        static bool hasLantern = false;
-        #endregion
+        
         #region Core
         static void Main(string[] args)
         {
@@ -98,7 +105,7 @@ namespace TreeOfLife
             Console.SetWindowSize(SCREEN_W, SCREEN_H);
             Console.CursorVisible = false;
 
-            CutsceneIntro();
+            if(!DEV) CutsceneIntro();
 
             Console.WriteLine("\n");
             while (!shouldQuit)
@@ -217,12 +224,26 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    PrintNarrative("The village center is positioned directly over a fork in the branch. Large platforms are built onto the sides of the branches like scaffolding. The village center and surrounding buildings are constructed out of wooden beams and rope. A few people meander about, but today there are no merchants peddling food or crafts.");
-                    PrintNarrative("\n\n Near the far perimeter, "); PrintKeyword("JOEY"); PrintNarrative(" lays in a hammock.");
+                    PrintNarrative("You are in Acacia village.");
+                    PrintNarrative("\n  The village center is a round platform suspended in place with rope and rigging. It hangs down a bit from a great fork in the branch above.");
+                    PrintNarrative(" The center is remarkable in both its size and its flatness. On more than one occassion the entire town has been able to stand and assemble together on this wonder of arboreal engineering.");
+                    PrintNarrative(" From here, a network of of boardwalks and bridges scaffold across and around the branches, connecting the homes and shops that cling to the branches of the great fork.");
+                    PrintNarrative(" The boardwalks and the village center itself are constructed of beams of (relatively tiny) timber.");
+                    PrintNarrative("\n\n  The village center is mostly quiet today, apart from the leaves rustling and boards creaking.");
+                    PrintNarrative("\n  A few people meander about, but today there are no merchants peddling food or crafts.");
+                    PrintNarrative("\n  Near the far perimeter, "); PrintKeyword("JOEY"); PrintNarrative(" lays in a hammock.");
+
+                    PrintNarrative("\n ");
+
+                    MultipleChoice(new string[]{"one","two","three" });
+
                     break;
+                case "joe":
                 case "joey":
+                case "talk to joe":
                 case "talk to joey":
                 case "talk joey":
+                case "talk joe":
                     PrintDialog("Hi Nola! I'm sorry to see you go, but I know you'll find us a great new place to live!");
                     break;
                 case "n":
@@ -273,6 +294,13 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
+
+                    if (SeeIsFirstTime(Location.EdgarsNest)) {
+                        PrintNarrative("A giant bird looms over you!");
+                        PrintNarrative("He introduces himself as Edgar.");
+                    } else {
+                        PrintNarrative("You're standing in Edgar's nest.");
+                    }
                     break;
                 case "w":
                 case "west":
@@ -356,7 +384,7 @@ namespace TreeOfLife
                     PrintNarrative("\n\n Throughout your youth, this had been a particularly relaxing place to pass the time. You recall several trips to Moss Lake and the hours spent swimming and fishing.");
                     PrintNarrative("\n\n Now, the Lake looks overgrown with moss and algae, and you struggle to see any fish in the green waters.");
 
-                    if (hasFishingPole)
+                    if (HasItem(Items.FishingPole))
                     {
                         PrintNarrative("\n\n You could try to use your fishing pole, but you doubt that you would have much luck. Maybe if you could find a way to lure the fishes out from the moss and algae...");
                     }
@@ -721,21 +749,21 @@ namespace TreeOfLife
             y += lines.Length;
 
             List<string> items = new List<string>();
-            if(hasFishingPole)          items.Add("|     Fishing Pole            |");
-            if(hasTrunkMap)             items.Add("|     Trunk Map               |");
-            if(hasWingsuit)             items.Add("|     Relic Wingsuit          |");
-            if(hasFeather)              items.Add("|     Feather                 |");
-            if(hasRottenEgg)            items.Add("|     Rotten Egg              |");
-            if(hasAphids)               items.Add("|     Aphid-Covered Leaf      |");
-            if(hasKelpMoss)             items.Add("|     Kelp Moss               |");
-            if(hasRustyKnife)           items.Add("|     Rusty Knife             |");
-            if(hasSilkSack)             items.Add("|     Silk Sack               |");
-            if(hasAntsPants)            items.Add("|     Ants Pants              |");
-            if(hasFlameGel)             items.Add("|     Flame Gel               |");
-            if(hasCorrosiveAcid)        items.Add("|     Corrosive Acid          |");
-            if(hasPurpleLichen)         items.Add("|     Purple Lichen           |");
-            if(hasMarketplaceContract)  items.Add("|     Marketplace Contract    |");
-            if(hasLantern)              items.Add("|     Lantern                 |");
+            if(HasItem(Items.FishingPole)         ) items.Add("|     Fishing Pole            |");
+            if(HasItem(Items.TrunkMap)            ) items.Add("|     Trunk Map               |");
+            if(HasItem(Items.Wingsuit)            ) items.Add("|     Relic Wingsuit          |");
+            if(HasItem(Items.Feather)             ) items.Add("|     Feather                 |");
+            if(HasItem(Items.RottenEgg)           ) items.Add("|     Rotten Egg              |");
+            if(HasItem(Items.Aphids)              ) items.Add("|     Aphid-Covered Leaf      |");
+            if(HasItem(Items.KelpMoss)            ) items.Add("|     Kelp Moss               |");
+            if(HasItem(Items.RustyKnife)          ) items.Add("|     Rusty Knife             |");
+            if(HasItem(Items.SilkSack)            ) items.Add("|     Silk Sack               |");
+            if(HasItem(Items.AntsPants)           ) items.Add("|     Ants Pants              |");
+            if(HasItem(Items.FlameGel)            ) items.Add("|     Flame Gel               |");
+            if(HasItem(Items.CorrosiveAcid)       ) items.Add("|     Corrosive Acid          |");
+            if(HasItem(Items.PurpleLichen)        ) items.Add("|     Purple Lichen           |");
+            if(HasItem(Items.MarketplaceContract) ) items.Add("|     Marketplace Contract    |");
+            if(HasItem(Items.Lantern)             ) items.Add("|     Lantern                 |");
 
             Dictionary<char, ConsoleColor> map = new Dictionary<char, ConsoleColor>{
                 {'\0', ConsoleColor.White },
@@ -839,6 +867,54 @@ namespace TreeOfLife
         }
         #endregion
         #region Utilities
+        
+        static int MultipleChoice(string[] choices) {
+
+            int x = Console.CursorLeft = COLUMN_L;
+            int y = Console.CursorTop + 1;
+
+            int answer = 0;
+            while (true) {
+                Console.SetCursorPosition(x, y);
+                if (answer < 0) answer = 0;
+                if (answer >= choices.Length) answer = choices.Length - 1;
+                for (int i = 0; i < choices.Length; i++) {
+                    string choice = choices[i];
+                    Console.SetCursorPosition(x, y + i * 2);
+                    Console.BackgroundColor = (i == answer) ? ConsoleColor.DarkBlue : ConsoleColor.Black;
+                    Console.WriteLine($"  {choice}  ");
+                }
+                ConsoleKeyInfo cki = Console.ReadKey(true);
+                switch (cki.Key) {
+                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.RightArrow:
+                        answer++;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                    case ConsoleKey.UpArrow:
+                        answer--;
+                        break;
+                    case ConsoleKey.Enter:
+                    case ConsoleKey.Spacebar:
+                        return answer;
+                }
+            }
+        }
+        
+        static bool HasItem(Items item) {
+            return inventory.Contains(item);
+        }
+        static void Pickup(Items item) {
+             if(!inventory.Contains(item)) inventory.Add(item);
+        }
+        static void Drop(Items item) {
+            inventory.Remove(item);
+        }
+        static bool SeeIsFirstTime(Location location) {
+            if (locationsDiscovered.Contains(location)) return false;
+            locationsDiscovered.Add(location);
+            return true;
+        }
         static void Clear()
         {
             ResetColors();
