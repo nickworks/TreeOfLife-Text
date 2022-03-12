@@ -175,6 +175,7 @@ namespace TreeOfLife
                     PrintNarrative("\n  Type in commands and press enter.");
                     PrintLocation("\n\n  == Common Commands ==");
                     PrintKeyword("\n LOOK\t"); PrintNarrative("Describes your current location.");
+                    PrintKeyword("\n TALK\t"); PrintNarrative("Talk to someone in your current location.");
                     PrintKeyword("\n N\t"); PrintNarrative("Travel North");
                     PrintKeyword("\n E\t"); PrintNarrative("Travel East");
                     PrintKeyword("\n S\t"); PrintNarrative("Travel South");
@@ -189,16 +190,14 @@ namespace TreeOfLife
                 case "quit":
                 case "exit":
                     Clear();
-                    Console.WriteLine("\n\n   Do you really want to end your journey? (y/n)");
-                    while (true)
-                    {
-                        ConsoleKeyInfo key = Console.ReadKey(true);
-                        if (key.Key == ConsoleKey.Y) {
-                            shouldQuit = true;
-                            break;
-                        }
-                        if (key.Key == ConsoleKey.N) break;
-                    }
+                    
+                    int n = MultipleChoice(
+                        "Do you really want to end your journey?",
+                        new string[] { "Yes, quit the game", "No, keep playing" },
+                        ConsoleColor.Red);
+
+                    shouldQuit = (n == 0);
+                    
                     Clear();
                     return true;
                 case "map":
@@ -224,8 +223,8 @@ namespace TreeOfLife
             switch (input)
             {
                 case "look":
-                    PrintNarrative("You are in Acacia village.");
-                    PrintNarrative("\n  The village center is a round platform suspended in place with rope and rigging. It hangs down a bit from a great fork in the branch above.");
+                    PrintNarrative("You are in Acacia village, a cluster treehouses clinging to the sides of three, thick boughs. The villagers' call this region \"the great fork\", since these somewhat parallel limbs split apart a common source.");
+                    PrintNarrative("\n\n  The village center is a round platform suspended in place with rope and rigging. It hangs down a bit from a great fork in the branch above.");
                     PrintNarrative(" The center is remarkable in both its size and its flatness. On more than one occassion the entire town has been able to stand and assemble together on this wonder of arboreal engineering.");
                     PrintNarrative(" From here, a network of of boardwalks and bridges scaffold across and around the branches, connecting the homes and shops that cling to the branches of the great fork.");
                     PrintNarrative(" The boardwalks and the village center itself are constructed of beams of (relatively tiny) timber.");
@@ -234,8 +233,6 @@ namespace TreeOfLife
                     PrintNarrative("\n  Near the far perimeter, "); PrintKeyword("JOEY"); PrintNarrative(" lays in a hammock.");
 
                     PrintNarrative("\n ");
-
-                    MultipleChoice(new string[]{"one","two","three" });
 
                     break;
                 case "joe":
@@ -514,6 +511,47 @@ namespace TreeOfLife
         }
         #endregion
         #region Drawing
+        static void DrawBox(int x, int y, int w, int h) {
+            //   _____________
+            //   )            ) 
+            //  (            (
+            //   )____________)
+
+            if (h % 2 == 1) h++;
+
+            StringBuilder sb = new StringBuilder();
+            for(int yy = 0; yy < h; yy++) {
+                for(int xx = 0; xx < w; xx++) {
+                    bool isFirst = (xx == 0);
+                    bool isLast = (xx == w - 1);
+                    if(yy == 0) {
+                        if (isFirst) sb.Append(" _");
+                        else if (isLast) sb.Append(" ");
+                        else sb.Append("_");
+                    }
+                    else if(yy == h - 1) {
+                        if (isFirst) sb.Append(" )");
+                        else if (isLast) sb.Append(")");
+                        else sb.Append("_");
+                    } else {
+                        if(yy % 2 == 1) {
+                            if (isFirst) sb.Append(" )");
+                            else if (isLast) sb.Append(")");
+                            else sb.Append(" ");
+
+                        } else {
+                            if (isFirst) sb.Append("(");
+                            else if (isLast) sb.Append("(");
+                            else sb.Append(" ");
+                        }
+                    }
+                }
+                Console.SetCursorPosition(x, y+yy);
+                Console.Write(sb.ToString());
+                sb.Clear();
+            }
+
+        }
         static void DrawMap(int x, int y, bool showPosition = true)
         {
             int preX = Console.CursorLeft;
@@ -867,11 +905,26 @@ namespace TreeOfLife
         }
         #endregion
         #region Utilities
-        
-        static int MultipleChoice(string[] choices) {
+
+        static int MultipleChoice(string prompt, string[] choices, ConsoleColor color = ConsoleColor.Blue, ConsoleColor colorText = ConsoleColor.White) {
+
 
             int x = Console.CursorLeft = COLUMN_L;
             int y = Console.CursorTop + 1;
+
+            int max = prompt.Length;
+            foreach (string choice in choices) if (choice.Length > max) max = choice.Length;
+
+            DrawBox(x, y, max + 12, choices.Length * 2 + 5);
+
+            x += 5; 
+            y += 2;
+
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(prompt);
+            y += 2;
 
             int answer = 0;
             while (true) {
@@ -881,7 +934,8 @@ namespace TreeOfLife
                 for (int i = 0; i < choices.Length; i++) {
                     string choice = choices[i];
                     Console.SetCursorPosition(x, y + i * 2);
-                    Console.BackgroundColor = (i == answer) ? ConsoleColor.DarkBlue : ConsoleColor.Black;
+                    Console.BackgroundColor = (i == answer) ? color : ConsoleColor.Black;
+                    Console.ForegroundColor = (i == answer) ? colorText : ConsoleColor.DarkGray;
                     Console.WriteLine($"  {choice}  ");
                 }
                 ConsoleKeyInfo cki = Console.ReadKey(true);
